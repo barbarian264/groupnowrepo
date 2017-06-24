@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Place searches</title>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <style>
+    /* Always set the map height explicitly to define the size of the div
+       * element that contains the map. */
+    
+    .container {
+        width: 100%;
+    }
+    
+    .content {
+        width: 900px;
+        margin: auto;
+    }
+    
+    #map {
+        width: 100%;
+        height: 400px;
+        float: left;
+    }
+    
+    #location {
+        font-family: Arial, Helvetica Neue, Helvetica, sans-serif;
+        padding: 20px;
+        width: 350px;
+        height: 400px;
+        float: left;
+    }
+    /* Optional: Makes the sample page fill the window. */
+    
+    html,
+    body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+    }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="content">
+            <div class="search-container">
+                <form>
+                    <div class="container" id="nav">
+            <div class="row">
+                <div style="text-align: center; color: yellow ">
+                    <h1>Start Meeting Now!</h1>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12 col">
+            <h4>Select Activity:</h4>
+            <select>
+                <option value="empty" selected="true"></option>
+                <option value="Restaurant">Restaurant</option>
+                <option value="Bar">Bar</option>
+                <option value="Park">Park</option>
+                <option value="Bowling">Party!</option>
+            </select>
+        </div>
+        <div class="col-sm-12 col">
+            <h4>Age Range</h4>
+            <select>
+                <option value="empty" selected="true"></option>           
+                <option value="early">21-30</option>
+                <option value="mid">30-40</option>
+                <option value="old">40 and UP!!</option>
+            </select>
+        </div>
+        <div class="col-sm-12 col">
+            <h4>Background</h4>
+            <select>
+                <option value="empty" selected="true"></option>
+                <option value="White">White</option>
+                <option value="african-american">African American</option>
+                <option value="hispanic">Hispanic- Latino</option>
+                <option value="asian">Asian</option>
+                <option value="everything">A lil of everything!</option>
+        </div>
+        </select>
+        <br>
+        <br>
+               <br>
+               <input type="datetime-local" name="bdaytime">
+               <br>
+               <br>
+               <input type="submit" value="Submit">
+               <input type="reset">
+               <br>
+               <br>
+               </div>
+           </form>
+                    <input type="text" id="search-field">
+                    <button id="search">Search</button>
+
+                </form>
+            </div>
+            <div id="map"></div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAEKLmQaNvUhPtuXE4CaybDZ0wVBa5kVqU&libraries=places&callback=initMap" async defer></script>
+    <script>
+    // for hoisting 
+    var initMap;
+
+    $('#search').click(function(e) {
+        e.preventDefault();
+
+        var search = $('#search-field').val().trim();
+        $('#search-field').val("");
+
+        var dallas = {
+            lat: 32.7767,
+            lng: -96.7970
+        };
+
+        map = new google.maps.Map(document.getElementById('map'), {
+            center: dallas,
+            zoom: 11
+        });
+
+        infowindow = new google.maps.InfoWindow();
+        var service = new google.maps.places.PlacesService(map);
+        var request = {
+            location: dallas,
+            radius: 10000,
+            query: search
+        };
+
+        service.textSearch(request, callback);
+    });
+
+    // This example requires the Places library. Include the libraries=places
+    // parameter when you first load the API. For example:
+    // <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places">
+
+    var map;
+    var infowindow;
+
+    // we assign an anonymous function to initMap, a global variable or a visible variable in the outer scope.
+    // Some function called "initmap" needs to be accessible in the global scope so that google maps can call
+    // that function.
+    initMap = function() {
+        var dallas = {
+            lat: 32.7767,
+            lng: -96.7970
+        };
+
+        map = new google.maps.Map(document.getElementById('map'), {
+            center: dallas,
+            zoom: 11
+        });
+
+        infowindow = new google.maps.InfoWindow();
+        var service = new google.maps.places.PlacesService(map);
+        var request = {
+            location: dallas,
+            radius: 10000,
+            query: "bars"
+        };
+
+        service.textSearch(request, callback);
+    }
+
+    var places;
+
+    function callback(results, status) {
+      places = results;
+      console.log(results);
+        if (status == google.maps.places.PlacesServiceStatus.OK) {
+            for (var i = 0; i < results.length; i++) {
+                var place = results[i];
+                createMarker(results[i]);
+            }
+        }
+    }
+
+    function createMarker(place) {
+        var placeLoc = place.geometry.location;
+        var marker = new google.maps.Marker({
+            map: map,
+            place: {
+                placeId: place.place_id,
+                location: place.geometry.location
+            }
+            // position: place.geometry.location
+        });
+
+        google.maps.event.addListener(marker, 'click', function() {
+            console.log(place);
+            alert(place.formatted_address);
+            infowindow.setContent(place.name);
+            infowindow.open(map, this);
+        });
+    }
+    </script>
+</body>
+
+</html>
